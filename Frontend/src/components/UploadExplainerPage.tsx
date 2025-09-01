@@ -7,6 +7,72 @@ function cn(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
+// Markdown-like summary parser for headings, lists, paragraphs
+function parseSummary(summary: string): React.ReactNode {
+  if (!summary) return null;
+  const lines = summary.split(/\r?\n/);
+  const elements: React.ReactNode[] = [];
+  let currentList: string[] = [];
+
+  function renderBold(text: string) {
+    // Replace **text** with <strong>text</strong>
+    const parts = text.split(/(\*\*[^*]+\*\*)/);
+    return parts.map((part, i) => {
+      if (/^\*\*[^*]+\*\*$/.test(part)) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  }
+
+  lines.forEach((line, idx) => {
+    // Headings
+    if (/^#+\s*(.*)/.test(line)) {
+      if (currentList.length) {
+        elements.push(
+          <ul key={String(idx) + "-ul"} className="list-disc ml-4">
+            {currentList.map((li: string, i: number) => <li key={i}>{renderBold(li)}</li>)}
+          </ul>
+        );
+        currentList = [];
+      }
+      const match = line.match(/^#+/);
+      const level = match ? match[0].length : 3;
+      const text = line.replace(/^#+\s*/, "");
+      elements.push(
+        <h4 key={String(idx) + "-h"} className={level === 3 ? "text-lg font-bold mt-4 mb-2" : "text-base font-semibold mt-3 mb-1"}>{renderBold(text)}</h4>
+      );
+    }
+    // List items
+    else if (/^\d+\.\s+/.test(line)) {
+      currentList.push(line.replace(/^\d+\.\s+/, ""));
+    }
+    else if (/^[-*]\s+/.test(line)) {
+      currentList.push(line.replace(/^[-*]\s+/, ""));
+    }
+    // Paragraphs
+    else if (line.trim()) {
+      if (currentList.length) {
+        elements.push(
+          <ul key={String(idx) + "-ul"} className="list-disc ml-4">
+            {currentList.map((li: string, i: number) => <li key={i}>{renderBold(li)}</li>)}
+          </ul>
+        );
+        currentList = [];
+      }
+      elements.push(<p key={String(idx) + "-p"} className="mb-2">{renderBold(line.trim())}</p>);
+    }
+  });
+  if (currentList.length) {
+    elements.push(
+      <ul key={"final-ul"} className="list-disc ml-4">
+        {currentList.map((li: string, i: number) => <li key={i}>{renderBold(li)}</li>)}
+      </ul>
+    );
+  }
+  return elements;
+}
+
 const UploadExplainerPage: React.FC = () => {
   const { t, lang } = useI18n();
   const [file, setFile] = useState<File | null>(null);
@@ -96,7 +162,9 @@ const UploadExplainerPage: React.FC = () => {
                 </div>
               )}
               {!loading && result && (
-                <div className="prose prose-sm whitespace-pre-wrap">{result.explanation}</div>
+                <div className="prose prose-sm whitespace-pre-wrap">
+                  {parseSummary(result.explanation)}
+                </div>
               )}
               {!loading && !result && (
                 <p className="text-slate-500">Upload a file to see the explanation here.</p>
