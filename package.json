@@ -1,0 +1,14 @@
+{
+  "name": "bimasarthi-root",
+  "private": true,
+  "workspaces": ["Backend", "Frontend"],
+  "scripts": {
+    "dev:backend": "npm --workspace Backend run dev",
+    "dev:frontend": "npm --workspace Frontend run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm --workspace Backend run build && npm --workspace Frontend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
