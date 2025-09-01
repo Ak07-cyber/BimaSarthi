@@ -3,7 +3,7 @@ BimaSarthi is an open-source, AI-powered platform designed to simplify and democ
 
 Despite being one of the fastest-growing insurance markets, the sector faces significant challenges, including policy mis-selling, complex documentation, low financial literacy, poor persistency, and high claim rejection rates. BimaSarthi leverages AI, NLP, and React to make insurance more transparent, inclusive, and user-friendly—with a strong focus on empowering rural and low-income groups.
 
-# ✨ Key Features
+## ✨ Key Features
 🤖 AI-Powered Life Insurance Recommendations
 Personalized suggestions based on user profiles (age, dependents, budget, goals).
 
